@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+{% block title %} PURCHASE MANAGEMENT {% endblock %}
+{% block content %}
+<!-- usersTable -->
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title"><center> purchase cancelled Table </center></h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>material</th>
+                                    <th>category</th>
+                                    <th>Qts</th>
+                                    <th>Cost</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for purchase in purchases %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ purchase.name }}</td>
+                                    <td>{{purchase.category.name}}</td>
+                                    <td>{{purchase.quantity}}</td>
+                                    <td>{{purchase.price_variation}}</td>
+                                    <td>{{purchase.date}}</td>
+                                    <td>{{purchase.status}}</td>
+                                    <td>
+                                    {% if purchase.cancelled_date or purchase.received_date %}<a class="btn btn-success btn-rounded btn-fw" style="pointer-events: none;" href="{% url 'received-purchase' purchase.id %}" onclick="return confirm ('Are you sure you want to receive  {{purchase.name}}');">receive</a>{% else %}{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
