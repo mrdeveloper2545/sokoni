@@ -395,6 +395,7 @@
                         </div>
                       </div>
                     </div>
+                    {% comment %}
                     <div class="row flex-grow">
                       <div class="col-md-6 col-lg-6 grid-margin stretch-card">
                         <div class="card card-rounded">
@@ -525,6 +526,7 @@
                         </div>
                       </div>
                     </div>
+                    {% endcomment %}
                   </div>
                   <div class="col-lg-4 d-flex flex-column">
                     <div class="row flex-grow">
@@ -534,60 +536,31 @@
                             <div class="row">
                               <div class="col-lg-12">
                                 <div class="d-flex justify-content-between align-items-center">
-                                  <h4 class="card-title card-title-dash">Todo list</h4>
+                                  <h4 class="card-title card-title-dash">{{user.username}} Todo list</h4>
                                   <div class="add-items d-flex mb-0">
                                     <button type="button" class="add btn btn-icons btn-rounded btn-primary todo-list-add-btn text-white me-0 pl-12p " data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="mdi mdi-plus"></i></button>
                                   </div>
                                 </div>
                                 <div class="list-wrapper">
                                   <ul class="todo-list todo-list-rounded">
-                                    <li class="d-block">
-                                      <div class="form-check w-100">
-                                        <label class="form-check-label">
-                                          <input class="checkbox" type="checkbox"> Lorem Ipsum is simply dummy text of the printing <i class="input-helper rounded"></i>
-                                        </label>
-                                        <div class="d-flex mt-2">
-                                          <div class="ps-4 text-small me-3">24 June 2020</div>
-                                          <div class="badge badge-opacity-warning me-3">Due tomorrow</div>
-                                          <i class="mdi mdi-flag ms-2 flag-color"></i>
-                                        </div>
-                                      </div>
-                                    </li>
-                                    <li class="d-block">
-                                      <div class="form-check w-100">
-                                        <label class="form-check-label">
-                                          <input class="checkbox" type="checkbox"> Lorem Ipsum is simply dummy text of the printing <i class="input-helper rounded"></i>
-                                        </label>
-                                        <div class="d-flex mt-2">
-                                          <div class="ps-4 text-small me-3">23 June 2020</div>
-                                          <div class="badge badge-opacity-success me-3">Done</div>
-                                        </div>
-                                      </div>
-                                    </li>
-                                    <li>
-                                      <div class="form-check w-100">
-                                        <label class="form-check-label">
-                                          <input class="checkbox" type="checkbox"> Lorem Ipsum is simply dummy text of the printing <i class="input-helper rounded"></i>
-                                        </label>
-                                        <div class="d-flex mt-2">
-                                          <div class="ps-4 text-small me-3">24 June 2020</div>
-                                          <div class="badge badge-opacity-success me-3">Done</div>
-                                        </div>
-                                      </div>
-                                    </li>
-                                    <li class="border-bottom-0">
-                                      <div class="form-check w-100">
-                                        <label class="form-check-label">
-                                          <input class="checkbox" type="checkbox"> Lorem Ipsum is simply dummy text of the printing <i class="input-helper rounded"></i>
-                                        </label>
-                                        <div class="d-flex mt-2">
-                                          <div class="ps-4 text-small me-3">24 June 2020</div>
-                                          <div class="badge badge-opacity-danger me-3">Expired</div>
-                                        </div>
-                                      </div>
-                                    </li>
+                                      {% for T in pd %}
+                                          <li class="d-block todo-item {% if forloop.counter > 5 %}hidden{% endif %}">
+                                              <div class="form-check w-100">
+                                                  <label class="form-check-label">
+                                                      <input class="checkbox" type="checkbox"> {{ T.activities_name }} ({{ T.description }}) <i class="input-helper rounded"></i>
+                                                  </label>
+                                                  <div class="d-flex mt-2">
+                                                      <div class="ps-4 text-small me-3">{{ T.date|date:"Y-m-d" }}</div>
+                                                      <p>{{ T.time|time:"H:i" }}</p>
+                                                      <div class="{% if T.status == 'Completed' %}badge badge-opacity-success me-3{% elif T.status == 'Due Tomorrow' %}badge badge-opacity-primary me-3{% else %}badge badge-opacity-warning me-3{% endif %}">{{ T.status }}</div>
+                                                      <i class="mdi mdi-flag ms-2 flag-color"></i>
+                                                  </div>
+                                              </div>
+                                          </li>
+                                      {% endfor %}
                                   </ul>
-                                </div>
+                                  <button id="see-more-btn" class="btn btn-primary">See More</button>
+                              </div>                              
                               </div>
                             </div>
                           </div>
@@ -640,6 +613,7 @@
                         </div>
                       </div>
                     </div>
+                    {% comment %}
                     <div class="row flex-grow">
                       <div class="col-12 grid-margin stretch-card">
                         <div class="card card-rounded">
@@ -719,6 +693,7 @@
                         </div>
                       </div>
                     </div>
+                    {% endcomment%}
                   </div>
                 </div>
               </div>
@@ -732,56 +707,65 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                <h5 class="modal-title" id="addUserModalLabel">{{user.username}}: Add ToDoList</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{% url 'register' %}" method="POST">
-                    {% csrf_token %}
-                    {% if form.errors %}
-                    <div class="alert alert-danger">
-                        <ul>
-                            {% for field in form %}
-                            {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                            {% endfor %}
-                            {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" name="username" id="username" value="{{ form.username.value }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" name="first_name" id="first_name_id" class="form-control" value="{{ form.first_name.value }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" name="last_name" id="last_name_id" class="form-control" value="{{ form.last_name.value }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" id="email" value="{{ form.email.value }}" required>
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" id="password" required>
+              <form action="{% url 'todo-list-management' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="activity_name" class="form-label">Activity Name</label>
+                                <input type="text" class="form-control" name="activities_name" id="activities_name_id" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="password2" class="form-label">Confirm Password</label>
-                                <input type="password" name="password2" class="form-control" id="password2" required>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="description">description</label>
+                          <textarea class="form-control" name="description" id="description" rows="3"></textarea>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
+                </div>
+                <div class="row">
+                      <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select name="status" class="form-control" id="status" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="in_progress">In Progress</option>
+                                </select>
+                            </div>
+                      </div>
+                      <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select name="priority" class="form-control" id="priority" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                      </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="date">date</label>
+                          <input type="date" class="form-control" name="date" id="date">
+                        </div>
+                  </div>
+                  <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="time" class="form-label">Time</label>
+                            <input type="time" class="form-control" name="time" id="time_id">
+                        </div>
+                  </div>
+            </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>            
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -804,6 +788,18 @@
     console.log(last_week_totals);
     var day_purchase = JSON.parse('{{ day_purchase|safe }}');
     console.log(day_purchase);
+
+    // Parse the products data that was passed from the Django view
+    var productsData = JSON.parse('{{ products | safe }}');
+
+    // Prepare the labels (product names) and data (quantities) for the chart
+    var productLabels = productsData.map(product => product.name__name__name);
+    var productQuantities = productsData.map(product => product.total);
+
+    // Debugging outputs
+    console.log('Product Labels:', productLabels);
+    console.log('Product Quantities:', productQuantities);
+  
   </script>
 
 

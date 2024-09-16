@@ -298,37 +298,33 @@ class StockItems(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         now = timezone.datetime.now()
-        today = now
-        yesterday = today - timedelta(days=1)
-        
-        # Get unique item names from Purchase model
-        item_names = Purchase.objects.filter(status='received').values_list('name',flat=True).distinct()
-        
+        today = now.date()
+
+        item_names = Purchase.objects.filter(status='received').values_list('name', flat=True).distinct()
+
         data = []
 
         for item_name in item_names:
-            waste_quantity=Wastage.objects.filter(date=today,name__name=item_name).aggregate(Sum('quantity'))
-            waste_quantity=waste_quantity['quantity__sum'] if waste_quantity['quantity__sum'] else 0
-            
-            order_quantity=Order.objects.filter(date=today,name__name__name=item_name).aggregate(Sum('quantity'))
-            order_quantity=order_quantity['quantity__sum'] if order_quantity['quantity__sum'] else 0
-            
-            purchase_quantity = Purchase.objects.filter(received_date=now, name=item_name).aggregate(Sum('quantity'))
-            purchase_quantity = purchase_quantity['quantity__sum'] if purchase_quantity['quantity__sum'] else 0
+            # Calculate waste and order quantities for today
+            waste_quantity = Wastage.objects.filter(date=today, name__name=item_name).aggregate(Sum('quantity'))
+            waste_quantity = waste_quantity['quantity__sum'] or 0
 
-            opening_quantity = ClosingStock.objects.filter(date=yesterday,name__name=item_name).aggregate(Sum('quantity'))
-            opening_quantity = opening_quantity['quantity__sum'] if opening_quantity['quantity__sum'] else 0
+            order_quantity = Order.objects.filter(date=today, name__name__name=item_name).aggregate(Sum('quantity'))
+            order_quantity = order_quantity['quantity__sum'] or 0
+
+            purchase_quantity = Purchase.objects.filter(received_date=today, name=item_name).aggregate(Sum('quantity'))
+            purchase_quantity = purchase_quantity['quantity__sum'] or 0
+
+            last_closing_stock = ClosingStock.objects.filter(name__name=item_name).exclude(quantity=0).order_by('-date').first()
+            opening_quantity = last_closing_stock.quantity if last_closing_stock else 0
 
             total_quantity = opening_quantity + purchase_quantity
-            
-            remain_quantity=total_quantity - (order_quantity + waste_quantity)
-            
+            remain_quantity = total_quantity - (order_quantity + waste_quantity)
 
             closing_stock, created = ClosingStock.objects.update_or_create(
                 date=today,
                 name=Purchase.objects.filter(name=item_name).first(),  
                 defaults={'quantity': remain_quantity}
-                
             )
             data.append({
                 'item_name': item_name,
@@ -336,9 +332,9 @@ class StockItems(LoginRequiredMixin, PermissionRequiredMixin, View):
                 'opening_quantity': opening_quantity,
                 'closing_quantity': closing_stock.quantity,
                 'total_quantity': total_quantity,
-                'date':today,
-                'order_quantity':order_quantity,
-                'waste_quantity':waste_quantity
+                'date': today,
+                'order_quantity': order_quantity,
+                'waste_quantity': waste_quantity
             })
 
         context = {
@@ -349,6 +345,7 @@ class StockItems(LoginRequiredMixin, PermissionRequiredMixin, View):
             'day': now.strftime('%A'),
         }
         return render(request, self.template_name, context)
+
     
     
     

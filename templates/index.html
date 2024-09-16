@@ -45,6 +45,14 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" />
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap4.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    .hidden {
+        display: none;
+    }
+  </style>
+    
+
 </head>
 
 <body>
@@ -225,6 +233,17 @@
   });
 </script>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+      const seeMoreBtn = document.getElementById('see-more-btn');
+      const hiddenItems = document.querySelectorAll('#todo-list li.hidden');
+  
+      seeMoreBtn.addEventListener('click', () => {
+          hiddenItems.forEach(item => item.classList.remove('hidden'));
+          seeMoreBtn.style.display = 'none'; // Hide the button after showing all items
+      });
+  });
+</script>
 
 </body>
 

@@ -21,10 +21,14 @@ from rest_framework.response import *
 from stock.serializers import  *
 from datetime import datetime, timedelta
 from django.utils import  timezone
+from decimal import Decimal
 # Create your views here.
 
-
-
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 
@@ -52,6 +56,7 @@ def Dashboard(request):
         month_abbr = [calendar.month_abbr[i].upper() for i in range(1, 13)]
         now = timezone.datetime.now()
         today=now.date()
+        tomorrow=today + timedelta(days=1)
         
         yesterday=today - timedelta(days=1)
 
@@ -186,9 +191,20 @@ def Dashboard(request):
         purchase_totals_list = [purchases_totals[month] for month in months]
         sales_totals_list = [sales_totals[month] for month in months]
         
+        ToDoList.objects.filter(date=tomorrow, status='Pending').update(status='Due Tomorrow')
+        ToDoList.objects.filter(date__lt=now, status='pending').update(status='Completed')
+        todos=ToDoList.objects.filter(user=request.user).order_by('-date')
+        
+        products=Order.objects.filter(status='charged').values('name__name__name','quantity').annotate(total=Sum('quantity'))
+        products_list = list(products)
+        
+        
+        
 
         
         context = {
+            'products': json.dumps(products_list, cls=DecimalEncoder),
+            'pd':todos,
             'purchase_totals': json.dumps(purchase_totals_list),
             'sales_totals': json.dumps(sales_totals_list),
             'months': json.dumps(months),
@@ -420,6 +436,53 @@ class UserRole(PermissionRequiredMixin, LoginRequiredMixin, View):
         
         messages.success(request, 'Groups updated successfully')
         return redirect('users')
+
+
+class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
+    template_name = 'dashboard/home.html'
+    permission_required=''
+    
+    def get(self, request, *args, **kwargs):
+        todos=get_list_or_404(ToDoList, user=request.user)
+        now=timezone.datetime.now()
+        messages_data = [{'message': message.message, 'tags': message.tags} for message in messages.get_messages(request)]
+        messages_json = json.dumps(messages_data)
+        context = {
+            'pd':todos,
+            'messages_json': messages_json,
+            'day': now.strftime('%A'),
+            'second': now.second,
+            'minute': now.minute,
+            'hour': now.hour,
+            'month': now.strftime('%B'),
+            'year': now.year,
+        }   
+        return render(request, self.template_name,context)
+    
+    def post(self, request, *args, **kwargs):
+        activities_name = request.POST.get('activities_name')
+        description = request.POST.get('description')
+        date_str = request.POST.get('date')
+        time_str = request.POST.get('time')
+        user = request.user
+
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date() 
+            time = datetime.strptime(time_str, '%H:%M').time()     
+        except ValueError:
+            messages.error(request, 'Invalid date or time format.')
+            return redirect('home')
+
+        # Create the ToDoList instance
+        ToDoList.objects.create(
+            activities_name=activities_name,
+            description=description,
+            date=date,
+            time=time,
+            user=user
+        )
+        messages.success(request, 'Activity created successfully')
+        return redirect('home')
 
 
 logger = logging.getLogger(__name__)

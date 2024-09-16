@@ -84,6 +84,34 @@ class Order(models.Model):
             old_order = Order.objects.get(pk=self.pk)
             self.previous_status = old_order.status
         super().save(*args, **kwargs)
+        
+        
+class ToDoList(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('in_progress', 'In Progress'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    activities_name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    date = models.DateField()
+    time = models.TimeField(auto_now=False, auto_now_add=False)
+    
+    def __str__(self):
+        return f"{self.user} - {self.activities_name} - {self.status}"
+
 
 
 

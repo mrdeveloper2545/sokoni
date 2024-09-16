@@ -3,7 +3,9 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from decimal import Decimal
-from .models import Order
+from .models import *
+from datetime import timedelta
+from django.utils import timezone
 
 @receiver(post_save, sender=Order)
 def send_order_status_email(sender, instance, created, **kwargs):
@@ -57,3 +59,21 @@ def send_order_status_email(sender, instance, created, **kwargs):
     except Exception as e:
         # Handle other exceptions
         print(f"Error sending email: {e}")
+        
+        
+@receiver(post_save, sender=ToDoList)
+def update_status_due_tomorrow(sender, instance, **kwargs):
+    now = timezone.datetime.now().date()
+    tomorrow = now + timedelta(days=1)
+    
+    if instance.date == tomorrow and instance.status == 'pending':
+        instance.status = 'Due Tomorrow'
+        instance.save(update_fields=['status'])    
+        
+@receiver(post_save, sender=ToDoList)
+def update_status_completed(sender, instance, **kwargs):
+    now = timezone.datetime.now().date()
+    
+    if instance.date < now and instance.status == 'pending':
+        instance.status = 'Completed'
+        instance.save(update_fields=['status'])

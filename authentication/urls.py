@@ -24,6 +24,10 @@ urlpatterns = [
     # RolesPermission
     path('role/permission/<int:id>', RolePermission.as_view(), name='role-permission'),
     path('user/role/<int:user_id>/', UserRole.as_view(), name='user-role'),
+    
+    
+    # TodoListManagement
+    path('todo/', TodoListManagement.as_view(), name='todo-list-management'),
 
 
 ]
