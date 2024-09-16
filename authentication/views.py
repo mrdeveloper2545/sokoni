@@ -191,11 +191,12 @@ def Dashboard(request):
         purchase_totals_list = [purchases_totals[month] for month in months]
         sales_totals_list = [sales_totals[month] for month in months]
         
+        ToDoList.objects.filter(date=today, status='Pending').update(status='In Progress')
         ToDoList.objects.filter(date=tomorrow, status='Pending').update(status='Due Tomorrow')
         ToDoList.objects.filter(date__lt=now, status='pending').update(status='Completed')
         todos=ToDoList.objects.filter(user=request.user).order_by('-date')
         
-        products=Order.objects.filter(status='charged').values('name__name__name','quantity').annotate(total=Sum('quantity'))
+        products=Order.objects.filter(status='charged').values('name__name__category__name').annotate(total=Sum('quantity')).order_by('-total')[:5]
         products_list = list(products)
         
         

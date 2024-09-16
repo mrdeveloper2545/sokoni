@@ -60,6 +60,14 @@ def send_order_status_email(sender, instance, created, **kwargs):
         # Handle other exceptions
         print(f"Error sending email: {e}")
         
+
+@receiver(post_save, sender=ToDoList)
+def status_in_progress(sender, instance, **kwargs):
+    now = timezone.datetime.now().date()
+    
+    if now < instance.date and instance.status == 'pending':
+        instance.status = 'In Progress' 
+        instance.save(update_fields=['status']) 
         
 @receiver(post_save, sender=ToDoList)
 def update_status_due_tomorrow(sender, instance, **kwargs):
@@ -77,3 +85,5 @@ def update_status_completed(sender, instance, **kwargs):
     if instance.date < now and instance.status == 'pending':
         instance.status = 'Completed'
         instance.save(update_fields=['status'])
+        
+        

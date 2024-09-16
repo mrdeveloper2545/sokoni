@@ -471,9 +471,8 @@ if ($("#marketingOverview").length) {
         }],
   
         // These labels appear in the legend and in the tooltips when hovering different arcs
-        labels: [
+        labels:
           productLabels
-        ]
       };
       var doughnutPieOptions = {
         cutoutPercentage: 50,
