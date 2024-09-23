@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-s#qwjr6&b-1%8dldjjvu=#c@%ar122_z0*-za)041(u557mtnx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['mrdeveloper255.pythonanywhere.com']
 
@@ -109,6 +109,7 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = [
     'http://192.168.43.184:8000',
     'http://localhost:8000',
+    'https://mrdeveloper255.pythonanywhere.com',
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
