@@ -6,19 +6,18 @@ from django.contrib.auth.mixins import PermissionRequiredMixin,LoginRequiredMixi
 from django.contrib import messages
 import calendar
 from collections import defaultdict
-from stock.models import *
-from django.db.models.functions import TruncMonth,TruncWeek,TruncDay
-from django.db.models import ExpressionWrapper,F,FloatField,Sum,DecimalField,Avg
-from django.urls import reverse_lazy
+from stock.models import Purchase,Product,Order,Wastage,ToDoList
+from django.db.models.functions import TruncMonth,TruncDay
+from django.db.models import ExpressionWrapper,F,FloatField,Sum
 import json
 from rest_framework import status,generics
-from django.contrib.auth.models import *
-from rest_framework_simplejwt.views import *
-from rest_framework_simplejwt.tokens import *
-from rest_framework.permissions import *
+from django.contrib.auth.models import User,Permission,Group
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated,AllowAny
 import logging
-from rest_framework.response import *
-from stock.serializers import  *
+from rest_framework.response import Response
+from stock.serializers import  ProductSerializer,CustomTokenObtainPairSerializer,UserSerializer
 from datetime import datetime, timedelta
 from django.utils import  timezone
 from decimal import Decimal
@@ -192,11 +191,15 @@ def Dashboard(request):
         sales_totals_list = [sales_totals[month] for month in months]
         
         ToDoList.objects.filter(date=today, status='Pending').update(status='In Progress')
+        
         ToDoList.objects.filter(date=tomorrow, status='Pending').update(status='Due Tomorrow')
+        
         ToDoList.objects.filter(date__lt=now, status='pending').update(status='Completed')
+        
         todos=ToDoList.objects.filter(user=request.user).order_by('-date')
         
         products=Order.objects.filter(status='charged').values('name__name__category__name').annotate(total=Sum('quantity')).order_by('-total')[:5]
+        
         products_list = list(products)
         
         
@@ -286,13 +289,6 @@ class UserUpdateDeleteView(PermissionRequiredMixin,LoginRequiredMixin,View):
     model=User
     template_name='auth/users.html'
     permission_required=''
-
-    def get(self, request,id, *args, **kwargs):
-        user=User.objects.get(id)
-        context={
-            'user':user
-        }
-        return render(request, self.template_name, context)
 
     def post(self, request, id, *args, **kwargs):
         user=User.objects.get(id=id)
