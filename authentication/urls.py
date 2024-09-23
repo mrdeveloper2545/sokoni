@@ -28,6 +28,8 @@ urlpatterns = [
     
     # TodoListManagement
     path('todo/', TodoListManagement.as_view(), name='todo-list-management'),
+    path('update/todo/<int:id>/',UpdateDeleteTodoList.as_view(), name='update-todo-list'),
+    path('delete/todo/<int:id>/',UpdateDeleteTodoList.as_view(), name='delete-todo-list'),
 
 
 ]

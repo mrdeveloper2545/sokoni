@@ -10,14 +10,6 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title text-center">USERS LIST</h4>
-                        {% comment %}
-                        <form class="col-md-2" id="form_page" method="GET">
-                            <select name="per_page" id="per_page" onchange="document.getElementById('form_page').submit();" class="form-control">
-                                <option value="10" {% if per_page == '10' %}selected{% endif %}>10</option>
-                                <option value="50" {% if per_page == '50' %}selected{% endif %}>50</option>
-                                <option value="100" {% if per_page == '100' %}selected{% endif %}>100</option>
-                            </select>
-                        </form>{% endcomment %}
                         <div class="table-responsive">
                             <table class="table table-striped" id="myTable">
                                 <thead>

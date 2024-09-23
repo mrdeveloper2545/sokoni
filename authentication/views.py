@@ -484,6 +484,21 @@ class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
         )
         messages.success(request, 'Activity created successfully')
         return redirect('home')
+    
+class UpdateDeleteTodoList(View,PermissionRequiredMixin,LoginRequiredMixin):
+    permission_required=''
+    
+    def post(self,request,id,*args,**kwargs):
+        time=request.POST.get('time')
+        date=request.POST.get('date')
+        ToDoList.objects.filter(id=id).update(time=time,date=date)
+        messages.success(request, 'Activity updated successfully')   
+        return redirect('home')
+    
+    def get(self,request,id,*args,**kwargs):
+        ToDoList.objects.get(id=id).delete()
+        messages.success(request, 'Activity deleted successfully')
+        return redirect('home')
 
 
 logger = logging.getLogger(__name__)
