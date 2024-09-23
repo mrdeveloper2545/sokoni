@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'sokoni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sokoni',
+        'NAME': 'mrdeveloper255$default',
         'USER': 'mrdveloper255',
         'PASSWORD': 'MySQL123developer',
         'HOST': 'mrdeveloper255.mysql.pythonanywhere-services.com',
