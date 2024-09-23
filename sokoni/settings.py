@@ -78,16 +78,28 @@ WSGI_APPLICATION = 'sokoni.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'sokoni',
+#         'USER': 'root',
+#         'PASSWORD': 'MySQL123developer',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sokoni',
-        'USER': 'root',
+        'NAME': 'mrdeveloper255$sokoni',
+        'USER': 'mrdveloper255',
         'PASSWORD': 'MySQL123developer',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'HOST': 'mrdeveloper255mysql.pythonanywhere-services.com',
+        'PORT': '',
     }
 }
+
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:8000",
