@@ -31,7 +31,7 @@
                             <h3><span>{{total_order}}</span></h3>
                             <p class="{% if order_rate > 0 %}text-success d-flex{% elif order_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
                               <i class="{% if order_rate > 0 %}mdi mdi-menu-up{% elif order_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
-                              <span>{% if order_rate > 0 %} + {% elif order_rate < 0 %} - {% else %} {% endif %}{{ order_rate }}%</span>
+                              <span>{% if order_rate > 0 %} + {% elif order_rate < 0 %} - {% else %} {% endif %} {{ order_rate }}%</span>
                           </p>                          
                           </div>
                         </div>
@@ -57,7 +57,10 @@
                           </div>
                           <div class="card-body">
                             <h3><span>{{day_wastage|commafy}}</span></h3>
-                            <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p>
+                            <p class="{% if wastage_rate > 0 %}text-success d-flex{% elif wastage_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
+                              <i class="{% if wastage_rate > 0 %}mdi mdi-menu-up{% elif wastage_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
+                              <span>{% if wastage_rate > 0 %} + {% elif wastage_rate < 0 %} - {% else %} {% endif %} {{wastage_rate}}%</span>
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -68,7 +71,10 @@
                           </div>
                           <div class="card-body">
                             <h3><span>{{ purchases|commafy }}</span></h3>
-                            <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p>
+                            <p class="{% if purchases_rate > 0 %}text-success d-flex{% elif purchases_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
+                              <i class="{% if purchases_rate > 0 %}mdi mdi-menu-up{% elif purchases_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
+                              <span>{% if purchases_rate > 0 %} + {% elif purchases_rate < 0 %} - {% else %} {% endif %} {{purchase_rate}}%</span>
+                            </p>
                           </div>
                         </div>
                       </div>                         

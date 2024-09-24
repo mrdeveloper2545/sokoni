@@ -127,6 +127,39 @@ def Dashboard(request):
                 income_rate = 0
         else:
             income_rate=((today_income - yesterday_income)/yesterday_income)*100
+            
+            
+        yesterday_purchase = Purchase.objects.filter(status='received',date=yesterday).aggregate(
+            total_purchase=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
+        )['total_purchase'] or 0
+        
+        today_purchase=Purchase.objects.filter(status='received',date=today).aggregate(
+            total_purchase=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
+        )['total_purchase'] or 0
+        
+        if yesterday_purchase == 0:
+            if today_purchase > 0:
+                purchase_rate = 100
+            else:
+                purchase_rate = 0
+        else:
+            purchase_rate=((today_purchase - yesterday_purchase)/yesterday_purchase)*100
+            
+        yesterday_wastage=Wastage.objects.filter(date=yesterday).aggregate(
+            total_wastage=Sum(ExpressionWrapper(F('quantity'), output_field=FloatField()))
+        )['total_wastage'] or 0
+        
+        today_wastage=Wastage.objects.filter(date=today).aggregate(
+            total_wastage=Sum(ExpressionWrapper(F('quantity'), output_field=FloatField()))
+        )['total_wastage'] or 0
+        
+        if yesterday_wastage == 0:
+            if today_wastage > 0:
+                wastage_rate = 100
+            else:
+                wastage_rate = 0
+        else:
+            wastage_rate=((today_wastage - yesterday_wastage)/yesterday_wastage)*100
         
         monthly_purchase = Purchase.objects.filter(status='received',).annotate(
                 month=TruncMonth('received_date',)
@@ -220,6 +253,8 @@ def Dashboard(request):
 
         
         context = {
+            'purchase_rate':purchase_rate,
+            'wastage_rate':wastage_rate,
             'order_rate':order_rate,
             'orders':orders,
             'products': json.dumps(products_list, cls=DecimalEncoder),
@@ -500,7 +535,8 @@ class UpdateDeleteTodoList(View,PermissionRequiredMixin,LoginRequiredMixin):
     def post(self,request,id,*args,**kwargs):
         time=request.POST.get('time')
         date=request.POST.get('date')
-        ToDoList.objects.filter(id=id).update(time=time,date=date)
+        priority=request.POST.get('priority')
+        ToDoList.objects.filter(id=id).update(time=time,date=date,priority=priority)
         messages.success(request, 'Activity updated successfully')   
         return redirect('home')
     
