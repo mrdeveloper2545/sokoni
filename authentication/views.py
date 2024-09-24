@@ -11,7 +11,6 @@ from django.db.models.functions import TruncMonth,TruncDay
 from django.db.models import ExpressionWrapper,F,FloatField,Sum
 import json
 from rest_framework import status,generics
-from django.contrib.auth.models import User,Permission,Group
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -119,15 +118,15 @@ def Dashboard(request):
         today_income=Order.objects.filter(status='charged',date__range=[start_date,end_date]).aggregate(
             total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0
         
-        monthly_income=Order.objects.filter(status='charged').aggregate(
-            total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0
         
         
-        
-        yesterday_income_percentage=(yesterday_income/monthly_income)*100
-        today_income_percentage=(today_income/monthly_income)*100
-        
-        percentage_increase=(today_income_percentage-yesterday_income_percentage)
+        if yesterday_income == 0:
+            if today_income > 0:
+                income_rate = 100
+            else:
+                income_rate = 0
+        else:
+            income_rate=((today_income - yesterday_income)/yesterday_income)*100
         
         monthly_purchase = Purchase.objects.filter(status='received',).annotate(
                 month=TruncMonth('received_date',)
@@ -247,9 +246,7 @@ def Dashboard(request):
             'filter':start_date,
             'start_date':start_date,
             'end_date':end_date,
-            'percentage_increase':percentage_increase,
-            'today_income_percentage':today_income_percentage,
-            'yesterday_income_percentage':yesterday_income_percentage,
+            'income_rate':income_rate,
         }
         return render(request, 'dashboard/home.html', context)
 

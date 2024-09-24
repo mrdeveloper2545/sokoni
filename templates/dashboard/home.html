@@ -43,7 +43,10 @@
                           </div>
                           <div class="card-body">
                             <h3><span>{{total_income|commafy}}</span></h3>
-                            <p class="{% if today_income_percentage > yesterday_income_percentage %}text-success d-flex {% else %}text-danger d-flex{% endif %}"><i class="{% if today_income_percentage > yesterday_income_percentage %}mdi mdi-menu-up{% else %}mdi mdi-menu-down {% endif %}"></i><span>{{percentage_increase|floatformat}}%</span></p>
+                            <p class="{% if income_rate > 0 %}text-success d-flex{% elif income_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
+                              <i class="{% if income_rate > 0 %}mdi mdi-menu-up{% elif income_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
+                              <span>{% if income_rate > 0 %} + {% elif income_rate < 0 %} - {% else %} {% endif %}{{ income_rate }}%</span>
+                          </p> 
                           </div>
                         </div>
                       </div>
