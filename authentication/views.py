@@ -122,11 +122,11 @@ def Dashboard(request):
         
         if yesterday_income == 0:
             if today_income > 0:
-                income_rate = 100
+                income_rate = today_income
             else:
                 income_rate = 0
         else:
-            income_rate=((today_income - yesterday_income)/yesterday_income)*100
+            income_rate=today_income-yesterday_income
             
             
         yesterday_purchase = Purchase.objects.filter(status='received',date=yesterday).aggregate(
@@ -138,7 +138,7 @@ def Dashboard(request):
         )['total_purchase'] or 0
         
         if yesterday_purchase == 0:
-            if today_purchase > 0:
+            if today_purchase :
                 purchase_rate = 100
             else:
                 purchase_rate = 0
@@ -155,11 +155,11 @@ def Dashboard(request):
         
         if yesterday_wastage == 0:
             if today_wastage > 0:
-                wastage_rate = 100
+                wastage_rate = today_wastage
             else:
                 wastage_rate = 0
         else:
-            wastage_rate=((today_wastage - yesterday_wastage)/yesterday_wastage)*100
+            wastage_rate=today_wastage-yesterday_wastage
         
         monthly_purchase = Purchase.objects.filter(status='received',).annotate(
                 month=TruncMonth('received_date',)
