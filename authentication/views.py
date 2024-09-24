@@ -139,11 +139,11 @@ def Dashboard(request):
         
         if yesterday_purchase == 0:
             if today_purchase :
-                purchase_rate = 100
+                purchase_rate = today_purchase
             else:
                 purchase_rate = 0
         else:
-            purchase_rate=((today_purchase - yesterday_purchase)/yesterday_purchase)*100
+            purchase_rate= today_purchase - yesterday_purchase
             
         yesterday_wastage=Wastage.objects.filter(date=yesterday).aggregate(
             total_wastage=Sum(ExpressionWrapper(F('quantity'), output_field=FloatField()))
