@@ -95,6 +95,19 @@ def Dashboard(request):
         
         total_user=User.objects.filter(is_staff=True).count() 
         
+        yesterday_order=Order.objects.filter(status='charged',date=yesterday).count()
+        
+        today_order=Order.objects.filter(status='charged',date=today).count()
+        
+        if yesterday_order == 0:
+            if today_order > 0:
+                order_rate = 100
+            else:
+                order_rate = 0
+        else:
+            order_rate=((today_order - yesterday_order)/yesterday_order)*100
+            
+        
         total_order = Order.objects.filter(date__range=[start_date, end_date]).count()
         
         total_income=Order.objects.filter(status='charged',date__range=[start_date,end_date]).aggregate(
@@ -202,11 +215,14 @@ def Dashboard(request):
         
         products_list = list(products)
         
+        orders=Order.objects.filter(status='charged').order_by('-date')
         
         
 
         
         context = {
+            'order_rate':order_rate,
+            'orders':orders,
             'products': json.dumps(products_list, cls=DecimalEncoder),
             'pd':todos,
             'purchase_totals': json.dumps(purchase_totals_list),

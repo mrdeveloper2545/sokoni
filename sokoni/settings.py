@@ -11,9 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-s#qwjr6&b-1%8dldjjvu=#c@%ar122_z0*-za)041(u557mtnx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['mrdeveloper255.pythonanywhere.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -78,25 +78,14 @@ WSGI_APPLICATION = 'sokoni.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'sokoni',
-#         'USER': 'root',
-#         'PASSWORD': 'MySQL123developer',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mrdeveloper255$default',
-        'USER': 'mrdveloper255',
-        'PASSWORD': 'mnyongaji',
-        'HOST': 'mrdeveloper255.mysql.pythonanywhere-services.com',
-        'PORT': '',
+        'NAME': 'sokoni',
+        'USER': 'root',
+        'PASSWORD': 'MySQL123developer',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
