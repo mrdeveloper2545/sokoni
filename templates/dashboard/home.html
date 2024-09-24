@@ -7,7 +7,7 @@
         <div class="col-sm-12">
           <div class="home-tab">
             <div class="tab-content tab-content-basic">
-              <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview"> 
+              <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview">
                 <div class="row">
                   <div class="col-sm-12">
                     <div class="statistics-details d-flex align-items-center justify-content-between">
@@ -18,7 +18,7 @@
                           </div>
                           <div class="card-body">
                             <h3><span>{{total_user}}</span></h3>
-                            <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p>
+                            <!--<p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p>-->
                           </div>
                         </div>
                       </div>
@@ -32,7 +32,7 @@
                             <p class="{% if order_rate > 0 %}text-success d-flex{% elif order_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
                               <i class="{% if order_rate > 0 %}mdi mdi-menu-up{% elif order_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
                               <span>{% if order_rate > 0 %} + {% elif order_rate < 0 %} - {% else %} {% endif %} {{ order_rate }}%</span>
-                          </p>                          
+                          </p>
                           </div>
                         </div>
                       </div>
@@ -46,7 +46,7 @@
                             <p class="{% if income_rate > 0 %}text-success d-flex{% elif income_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
                               <i class="{% if income_rate > 0 %}mdi mdi-menu-up{% elif income_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
                               <span>{% if income_rate > 0 %} + {% elif income_rate < 0 %} - {% else %} {% endif %}{{ income_rate }}</span>
-                          </p> 
+                          </p>
                           </div>
                         </div>
                       </div>
@@ -71,16 +71,16 @@
                           </div>
                           <div class="card-body">
                             <h3><span>{{ purchases|commafy }}</span></h3>
-                            <p class="{% if purchases_rate > 0 %}text-success d-flex{% elif purchases_rate < 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
+                            <p class="{% if purchases_rate < 0 %}text-success d-flex{% elif purchases_rate > 0 %}text-danger d-flex{% else %}d-flex{% endif %}">
                               <i class="{% if purchases_rate > 0 %}mdi mdi-menu-up{% elif purchases_rate < 0 %}mdi mdi-menu-down{% endif %}"></i>
-                              <span>{% if purchases_rate > 0 %} + {% elif purchases_rate < 0 %} - {% else %} {% endif %} {{purchase_rate}}</span>
+                              <span>{% if purchases_rate > 0 %} + {% elif purchases_rate < 0 %} - {% else %} {% endif %} {{purchases_rate}}</span>
                             </p>
                           </div>
                         </div>
-                      </div>                         
+                      </div>
                     </div>
                   </div>
-                </div> 
+                </div>
                 <div class="row">
                   <div class="col-lg-8 d-flex flex-column">
                     <div class="row flex-grow">
@@ -189,7 +189,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="row flex-grow"> 
+                    <div class="row flex-grow">
 
                       <div class="col-12 grid-margin stretch-card">
                         <div class="card card-rounded table-darkBGImg">
@@ -203,7 +203,7 @@
                           </div>
                         </div>
                       </div>
-                      
+
                     </div>
                     <div class="row flex-grow">
                       <div class="col-12 grid-margin stretch-card">
@@ -335,7 +335,7 @@
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div class="list align-items-center pt-3">
                               <div class="wrapper w-100">
                                 <p class="mb-0">
@@ -437,14 +437,14 @@
                                                       <div class="{% if T.status == 'Completed' %}badge badge-opacity-success me-3{% elif T.status == 'Due Tomorrow' %} badge badge-opacity-secondary me-3 {% elif T.status == 'In Progress' %}  badge badge-opacity-primary me-3{% else %}badge badge-opacity-warning me-3{% endif %}">{{ T.status }}</div>
                                                       <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ T.id }}" class="text-success">
                                                         <i class="ti-pencil"></i>
-                                                    </a>                                                    
+                                                    </a>
                                                   </div>
                                               </div>
                                           </li>
                                       {% endfor %}
                                   </ul>
                                   <button id="see-more-btn" class="btn btn-primary">See More</button>
-                              </div>                              
+                              </div>
                               </div>
                             </div>
                           </div>
@@ -651,7 +651,7 @@
             </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>
-            </form>            
+            </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -706,7 +706,7 @@
               </form>
               <div class="modal-footer">
                 <button type="submit" class="btn btn-primary">Update</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> 
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
             </div>
         </div>
@@ -739,8 +739,8 @@
     // Debugging outputs
     console.log('Product Labels:', productLabels);
     console.log('Product Quantities:', productQuantities);
-  
+
   </script>
 
 
-{% endblock %}  
+{% endblock %}

@@ -55,7 +55,7 @@ def Dashboard(request):
         now = timezone.datetime.now()
         today=now.date()
         tomorrow=today + timedelta(days=1)
-        
+
         yesterday=today - timedelta(days=1)
 
         # Initialize start_date and end_date
@@ -65,11 +65,11 @@ def Dashboard(request):
         if request.method == 'POST':
             # Get the filter date from POST request
             filter_date_str = request.POST.get('filter')
-            
+
             if filter_date_str:
                 try:
                     filter_date = datetime.strptime(filter_date_str, '%Y-%m-%d').date()
-                    
+
                     # Determine if the filter is for today or yesterday
                     if filter_date == today:
                         start_date = today
@@ -81,23 +81,23 @@ def Dashboard(request):
                         # Handle other date ranges if needed
                         start_date = filter_date
                         end_date = filter_date
-                
+
                 except ValueError:
                     # Handle invalid date format
                     pass
-        
-        start_of_week = today - timedelta(days=today.weekday()) 
+
+        start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
 
-        start_of_last_week = start_of_week - timedelta(days=7)  
-        end_of_last_week = start_of_week - timedelta(days=1) 
-        
-        total_user=User.objects.filter(is_staff=True).count() 
-        
+        start_of_last_week = start_of_week - timedelta(days=7)
+        end_of_last_week = start_of_week - timedelta(days=1)
+
+        total_user=User.objects.filter(is_staff=True).count()
+
         yesterday_order=Order.objects.filter(status='charged',date=yesterday).count()
-        
+
         today_order=Order.objects.filter(status='charged',date=today).count()
-        
+
         if yesterday_order == 0:
             if today_order > 0:
                 order_rate = 100
@@ -105,21 +105,21 @@ def Dashboard(request):
                 order_rate = 0
         else:
             order_rate=((today_order - yesterday_order)/yesterday_order)*100
-            
-        
+
+
         total_order = Order.objects.filter(date__range=[start_date, end_date]).count()
-        
+
         total_income=Order.objects.filter(status='charged',date__range=[start_date,end_date]).aggregate(
             total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0
-        
+
         yesterday_income=Order.objects.filter(status='charged',date=yesterday).aggregate(
-            total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0   
-        
+            total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0
+
         today_income=Order.objects.filter(status='charged',date__range=[start_date,end_date]).aggregate(
             total_order=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['total_order'] or 0
-        
-        
-        
+
+
+
         if yesterday_income == 0:
             if today_income > 0:
                 income_rate = today_income
@@ -127,32 +127,32 @@ def Dashboard(request):
                 income_rate = 0
         else:
             income_rate=today_income-yesterday_income
-            
-            
+
+
         yesterday_purchase = Purchase.objects.filter(status='received',date=yesterday).aggregate(
             total_purchase=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
         )['total_purchase'] or 0
-        
+
         today_purchase=Purchase.objects.filter(status='received',date=today).aggregate(
             total_purchase=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
         )['total_purchase'] or 0
-        
+
         if yesterday_purchase == 0:
             if today_purchase :
-                purchase_rate = today_purchase
+                purchases_rate = today_purchase
             else:
-                purchase_rate = 0
+                purchases_rate = 0
         else:
-            purchase_rate= today_purchase - yesterday_purchase
-            
+            purchases_rate= today_purchase - yesterday_purchase
+
         yesterday_wastage=Wastage.objects.filter(date=yesterday).aggregate(
             total_wastage=Sum(ExpressionWrapper(F('quantity'), output_field=FloatField()))
         )['total_wastage'] or 0
-        
+
         today_wastage=Wastage.objects.filter(date=today).aggregate(
             total_wastage=Sum(ExpressionWrapper(F('quantity'), output_field=FloatField()))
         )['total_wastage'] or 0
-        
+
         if yesterday_wastage == 0:
             if today_wastage > 0:
                 wastage_rate = today_wastage
@@ -160,13 +160,13 @@ def Dashboard(request):
                 wastage_rate = 0
         else:
             wastage_rate=today_wastage-yesterday_wastage
-        
+
         monthly_purchase = Purchase.objects.filter(status='received',).annotate(
                 month=TruncMonth('received_date',)
             ).values('month',).annotate(
                 month_total=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
             )
-            
+
 
         monthly_sales = Order.objects.filter(status='charged').annotate(
             month=TruncMonth('date')
@@ -176,31 +176,31 @@ def Dashboard(request):
 
         ps=Order.objects.filter(status='charged').annotate(month=TruncMonth('date')).aggregate(
             tps=Sum(ExpressionWrapper(F('quantity')*F('name__price'),output_field=FloatField())))['tps'] or 0
-        
-        
+
+
         sp=Purchase.objects.filter(status='received').annotate(month=TruncMonth('date')).aggregate(
             spt=(Sum(ExpressionWrapper(F('quantity')*F('price_variation'),output_field=FloatField()))))['spt'] or 0
-        
+
         p=ps-sp
-        
+
         day_wastage=Wastage.objects.filter(date__range=[start_date,end_date]).annotate(day=TruncDay('date')).aggregate(
             wast=Sum(ExpressionWrapper(F('quantity')*F('name__price_variation'),output_field=FloatField()))
         )['wast'] or 0
-        
-        
-        
+
+
+
         purchases = Purchase.objects.filter(status='received',received_date__range=[start_date,end_date]).aggregate(
             total_purchase=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
-        )['total_purchase'] or 0 
-        
+        )['total_purchase'] or 0
+
         day_purchases = Purchase.objects.filter(
             status='received',
             received_date__range=[start_of_last_week, end_of_week]
         ).annotate(day=TruncDay('received_date')).values('day').annotate(
             day_total=Sum(ExpressionWrapper(F('quantity') * F('price_variation'), output_field=FloatField()))
-        ) 
+        )
 
-        this_week_data = defaultdict(float) 
+        this_week_data = defaultdict(float)
         last_week_data = defaultdict(float)
 
         for purchase in day_purchases:
@@ -234,26 +234,26 @@ def Dashboard(request):
         months = month_abbr
         purchase_totals_list = [purchases_totals[month] for month in months]
         sales_totals_list = [sales_totals[month] for month in months]
-        
-        ToDoList.objects.filter(date=today, status='Pending').update(status='In Progress')
-        
-        ToDoList.objects.filter(date=tomorrow, status='Pending').update(status='Due Tomorrow')
-        
-        ToDoList.objects.filter(date__lt=now, status='pending').update(status='Completed')
-        
-        todos=ToDoList.objects.filter(user=request.user).order_by('-date')
-        
-        products=Order.objects.filter(status='charged').values('name__name__category__name').annotate(total=Sum('quantity')).order_by('-total')[:5]
-        
-        products_list = list(products)
-        
-        orders=Order.objects.filter(status='charged').order_by('-date')
-        
-        
 
-        
+        ToDoList.objects.filter(date=today, status='Pending').update(status='In Progress')
+
+        ToDoList.objects.filter(date=tomorrow, status='Pending').update(status='Due Tomorrow')
+
+        ToDoList.objects.filter(date__lt=now, status='pending').update(status='Completed')
+
+        todos=ToDoList.objects.filter(user=request.user).order_by('-date')
+
+        products=Order.objects.filter(status='charged').values('name__name__category__name').annotate(total=Sum('quantity')).order_by('-total')[:5]
+
+        products_list = list(products)
+
+        orders=Order.objects.filter(status='charged').order_by('-date')
+
+
+
+
         context = {
-            'purchase_rate':purchase_rate,
+            'purchases_rate':purchases_rate,
             'wastage_rate':wastage_rate,
             'order_rate':order_rate,
             'orders':orders,
@@ -308,13 +308,13 @@ class UserManagement(PermissionRequiredMixin,LoginRequiredMixin, View):
             if User.objects.filter(email=email).exists():
                 messages.error(request, 'Email already exists')
                 return self.get(request, *args, **kwargs)
-            
+
             user=User.objects.create_user(username=username,first_name=first_name,last_name=last_name,email=email,password=password)
             user.save()
             messages.success(request, 'User created successfully')
             return redirect('users')
-    
-    
+
+
     def get(self, request, *args, **kwargs):
         groups=Group.objects.all()
         users = User.objects.all()
@@ -348,19 +348,19 @@ class UserUpdateDeleteView(PermissionRequiredMixin,LoginRequiredMixin,View):
             user.save()
             return redirect('users')
         return render (request, self.template_name)
-    
+
     def get(self, request, id, *args, **kwargs):
         user=User.objects.get(id=id)
         user.delete()
         return redirect('users')
-    
+
 
 
 class RoleManagement(PermissionRequiredMixin,LoginRequiredMixin,View):
     template_name = 'auth/roles.html'
     permission_required=''
-    
-    
+
+
     def get(self, request, *args, **kwargs):
         groups = Group.objects.all()
         now=timezone.datetime.now()
@@ -378,41 +378,41 @@ class RoleManagement(PermissionRequiredMixin,LoginRequiredMixin,View):
             'messages_json': messages_json
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
             name=request.POST['name']
             Group.objects.get_or_create(name=name)
             messages.success(request, 'Role created successfully')
             return redirect('roles-management')
-        
-        
+
+
 class UpdateDeleteRole(PermissionRequiredMixin,LoginRequiredMixin,View):
     template_name = 'auth/roles.html'
     permission_required=''
-    
-    
+
+
     def post(self, request, id, *args, **kwargs):
             name=request.POST['name']
             Group.objects.filter(id=id).update(name=name)
             messages.success(request, 'Role updated successfully')
             return redirect('roles-management')
-            
-            
+
+
     def get(self, request, id, *args, **kwargs):
         Group.objects.get(id=id).delete()
-        return redirect('roles-management')   
-    
-    
+        return redirect('roles-management')
+
+
 class RolePermission(PermissionRequiredMixin,LoginRequiredMixin,View):
     template_name = 'auth/role-permission.html'
     permission_required=''
-    
+
     def get(self, request, id,*args, **kwargs):
         permissions = Permission.objects.all()
         group=Group.objects.get(id=id)
         now=timezone.datetime.now()
-        
+
         messages_data = [{'message': message.message, 'tags': message.tags} for message in messages.get_messages(request)]
         messages_json = json.dumps(messages_data)
         context={
@@ -426,13 +426,13 @@ class RolePermission(PermissionRequiredMixin,LoginRequiredMixin,View):
             'permissions':permissions,
             'group':group,
             'messages_json': messages_json
-        }        
+        }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, id, *args, **kwargs):
         group = Group.objects.get(id=id)
         permissions =request.POST.getlist('permission[]')
-        
+
         group.permissions.clear()
 
         for permission in permissions:
@@ -441,20 +441,20 @@ class RolePermission(PermissionRequiredMixin,LoginRequiredMixin,View):
 
         messages.success(request, 'Permissions updated successfully')
         return redirect('roles-management')
-    
-    
+
+
 class UserRole(PermissionRequiredMixin, LoginRequiredMixin, View):
     template_name = 'auth/users.html'
     permission_required = ''
-    
+
     def get(self, request,user_id, *args, **kwargs):
         user = get_object_or_404(User, id=user_id)
         groups = Group.objects.all()
         now = timezone.datetime.now()
-        
+
         messages_data = [{'message': message.message, 'tags': message.tags} for message in messages.get_messages(request)]
         messages_json = json.dumps(messages_data)
-        
+
         context = {
             'time': now,
             'day': now.strftime('%A'),
@@ -466,19 +466,19 @@ class UserRole(PermissionRequiredMixin, LoginRequiredMixin, View):
             'user': user,
             'groups': groups,
             'messages_json': messages_json
-        }        
+        }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, user_id, *args, **kwargs):
         user = get_object_or_404(User, id=user_id)
-        groups = request.POST.getlist('group') 
-        
+        groups = request.POST.getlist('group')
+
         user.groups.clear()
-        
+
         for group in groups:
             group = Group.objects.get(id=group)
             user.groups.add(group)
-        
+
         messages.success(request, 'Groups updated successfully')
         return redirect('users')
 
@@ -486,7 +486,7 @@ class UserRole(PermissionRequiredMixin, LoginRequiredMixin, View):
 class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
     template_name = 'dashboard/home.html'
     permission_required=''
-    
+
     def get(self, request, *args, **kwargs):
         todos=get_list_or_404(ToDoList, user=request.user)
         now=timezone.datetime.now()
@@ -501,9 +501,9 @@ class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
             'hour': now.hour,
             'month': now.strftime('%B'),
             'year': now.year,
-        }   
+        }
         return render(request, self.template_name,context)
-    
+
     def post(self, request, *args, **kwargs):
         activities_name = request.POST.get('activities_name')
         description = request.POST.get('description')
@@ -512,8 +512,8 @@ class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
         user = request.user
 
         try:
-            date = datetime.strptime(date_str, '%Y-%m-%d').date() 
-            time = datetime.strptime(time_str, '%H:%M').time()     
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            time = datetime.strptime(time_str, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Invalid date or time format.')
             return redirect('home')
@@ -528,18 +528,18 @@ class TodoListManagement(PermissionRequiredMixin, LoginRequiredMixin, View):
         )
         messages.success(request, 'Activity created successfully')
         return redirect('home')
-    
+
 class UpdateDeleteTodoList(View,PermissionRequiredMixin,LoginRequiredMixin):
     permission_required=''
-    
+
     def post(self,request,id,*args,**kwargs):
         time=request.POST.get('time')
         date=request.POST.get('date')
         priority=request.POST.get('priority')
         ToDoList.objects.filter(id=id).update(time=time,date=date,priority=priority)
-        messages.success(request, 'Activity updated successfully')   
+        messages.success(request, 'Activity updated successfully')
         return redirect('home')
-    
+
     def get(self,request,id,*args,**kwargs):
         ToDoList.objects.get(id=id).delete()
         messages.success(request, 'Activity deleted successfully')
